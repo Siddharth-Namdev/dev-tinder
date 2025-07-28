@@ -52,33 +52,46 @@ paymentRouter.post("/payment/create", userAuth, async (req, res) => {
 
 paymentRouter.post("/payment/webhook", async (req, res) => {
   try {
+    const webhookSignature = req.get("X-Razorpay-Signature");
 
-    const webhookSignature = req.get("X-Razorpay-Signature")
-
-    const isWebhookValid = validateWebhookSignature(   //predefined function of razorpay
+    const isWebhookValid = validateWebhookSignature(
+      //predefined function of razorpay
       JSON.stringify(req.body),
       webhookSignature,
       process.env.RAZORPAY_WEBHOOK_SECRET
     );
 
-    if(!isWebhookValid){
-      return res.status(400).json({msg:"Webhook signature is invalid"});
+    if (!isWebhookValid) {
+      return res.status(400).json({ msg: "Webhook signature is invalid" });
     }
 
     // Update my payment status in DB
-    const paymentDetails = req.body.payload.payment.entity;  // this data razorpay gives when any payment done or fail
-    const payment = await Payment.findOne({orderId:paymentDetails.order_id});   // Db me payment ID find kri
-    payment.status = paymentDetails.status;  // jo v payment ka status hoga , use DB me store kar denge
+    const paymentDetails = req.body.payload.payment.entity; // this data razorpay gives when any payment done or fail
+    const payment = await Payment.findOne({ orderId: paymentDetails.order_id }); // Db me payment ID find kri
+    payment.status = paymentDetails.status; // jo v payment ka status hoga , use DB me store kar denge
     await payment.save();
 
-    const user = await User.findOne({_id:payment.userId});
+    const user = await User.findOne({ _id: payment.userId });
     user.isPremium = true;
     user.membershipType = payment.notes.membershipType;
     await user.save();
-
-
-
   } catch (err) {}
+});
+
+// paymentRouter.get("/premium/verify", userAuth, async (req, res) => {
+//   const user = req.user;
+//   if (user.isPremium) {
+//     return res.json({ isPremium: true });
+//   }
+//   return res.json({ isPremium: false });
+// });
+paymentRouter.get("/premium/verify", userAuth, async (req, res) => {
+  const user = req.user.toJSON();
+  //console.log(user);
+  if (user.isPremium) {
+    return res.json({ ...user });
+  }
+  return res.json({ ...user });
 });
 
 module.exports = paymentRouter;
