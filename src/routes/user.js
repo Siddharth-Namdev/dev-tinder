@@ -6,7 +6,7 @@ const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 
 //populate me jo array me likha tha use string me v likh skte h , yese , or sakbhi ko comma se seperate krna hota h
-const USER_SAFE_DATA = " firstName lastName gender about skills,age , photoUrl";
+const USER_SAFE_DATA = " firstName lastName gender about skills age  photoUrl";
 
 userRouter.get("/user/requests/received", userAuth, async (req, res) => {
   try {

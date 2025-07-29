@@ -5,6 +5,7 @@ const User = require("./models/user");
 const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const http = require("http");
 
 require("dotenv").config();
 require("./utils/cronjob")
@@ -28,6 +29,7 @@ const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const paymentRouter = require("./routes/payment");
+const initializeSocket = require("./utils/socket")
 
 
 app.use("/", authRouter);
@@ -36,10 +38,16 @@ app.use("/", requestRouter);
 app.use("/", userRouter);
 app.use("/", paymentRouter);
 
+
+const server = http.createServer(app);
+initializeSocket(server);
+
+
+
 connectDB()
   .then(() => {
     console.log("MongoDB Connected Successfully");
-    app.listen(process.env.PORT, () => {
+    server.listen(process.env.PORT, () => {
       console.log("server is started at 7777");
     });
   })
