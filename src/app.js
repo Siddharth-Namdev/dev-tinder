@@ -14,7 +14,7 @@ require("./utils/cronjob")
 // this middleware is giveen by express , we are not created this , it is already created by express
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "http://devtinderweb-five.vercel.app",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
